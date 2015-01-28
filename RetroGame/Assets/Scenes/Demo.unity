@@ -108,6 +108,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_movementSpeed: 10
   m_jumpPower: 12
+  m_mainCameraBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!58 &220306284
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -273,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d3c05d557401694a97229ca11b4f146, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_movementMode: 0
+  m_movementMode: 1
   m_target: {fileID: 220306288}
   m_smooth: .100000001
 --- !u!1 &764558245
