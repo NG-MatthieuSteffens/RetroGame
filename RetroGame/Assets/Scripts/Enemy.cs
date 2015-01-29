@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Enemy : MonoBehaviour 
+public class Enemy : EnemyBase 
 {
 	private enum MovementDirection
 	{
@@ -15,21 +15,7 @@ public class Enemy : MonoBehaviour
 	[SerializeField]
 	private MovementDirection m_movementDirection;
 	
-	private new Transform transform;
-	private new Rigidbody2D rigidbody2D;
-	
-	public void Die()
-	{
-		Destroy( gameObject );
-	}
-	
-	private void Awake()
-	{
-		transform = GetComponent<Transform>();
-		rigidbody2D = GetComponent<Rigidbody2D>();
-	}
-	
-	private void FixedUpdate()
+	protected virtual void FixedUpdate()
 	{
 		int direction = (int)m_movementDirection;
 		transform.Translate( Vector3.right * m_movementSpeed * direction * Time.deltaTime );
@@ -40,20 +26,26 @@ public class Enemy : MonoBehaviour
 		}
 	}
 	
-	private void OnCollisionEnter2D(Collision2D collision)
+	protected override bool OnPlayerHit (Collision2D collision)
+	{
+		if( collision.relativeVelocity.y > 0 )
+		{
+			return Die();
+		}
+		else
+		{
+			return base.OnPlayerHit (collision);
+		}
+	}
+	
+	protected override void OnCollisionEnter2D(Collision2D collision)
 	{
 		Vector2 collisionDirection = collision.contacts[0].point - (Vector2)transform.position;	
 
-		if( collision.transform.CompareTag("Player") )
+		// Ignore other collisions if player dies.
+		if( HandlePlayerCollision(collision) )
 		{
-			if( collision.relativeVelocity.y > 0 )
-			{
-				Die();
-			}
-			else
-			{
-				Player.CurrentPlayer.GameOver();
-			}
+			return;
 		}
 
 		if( collision.relativeVelocity.y < 0 || collisionDirection.y > 0.5f )
