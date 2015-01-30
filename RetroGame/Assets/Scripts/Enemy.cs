@@ -3,17 +3,17 @@ using System.Collections;
 
 public class Enemy : EnemyBase 
 {
-	private enum MovementDirection
+	protected enum MovementDirection
 	{
 		Left = -1,
 		Right = 1
 	}
 	
 	[SerializeField]
-	private float m_movementSpeed;
+	protected float m_movementSpeed;
 	
 	[SerializeField]
-	private MovementDirection m_movementDirection;
+	protected MovementDirection m_movementDirection;
 	
 	protected virtual void FixedUpdate()
 	{

@@ -15,7 +15,18 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	private float m_jumpPower;
 	
+	[SerializeField]
+	private Vector3 m_grownSize = new Vector3( 1, 2, 1 );
+	
+	[SerializeField]
+	private Vector3 m_shinkSize = new Vector3( 1, 1, 1);
+	
+	private bool m_isGrown;
 	private bool m_isGrounded;
+	
+	[SerializeField]
+	private float m_invulnerabilityTime = 1f;
+	private bool m_isInvulnerability;
 	
 	/// <summary>
 	/// Cached Transform.
@@ -27,10 +38,56 @@ public class Player : MonoBehaviour
 	/// </summary>
 	private new Rigidbody2D rigidbody2D;
 	
-	public void GameOver()
+	/// <summary>
+	/// Cached Collider.
+	/// </summary>
+	private new Collider2D collider2D;
+	
+	public void Grow(bool isGrown = true)
+	{ 
+		m_isGrown = isGrown;
+		
+		if( m_isGrown )
+		{
+			transform.localScale = m_grownSize;
+		}
+		else
+		{
+			transform.localScale = m_shinkSize;
+			
+			// Moves player down so it won't be over any enemies.
+			transform.Translate( 0, -m_grownSize.y / 2, 0 );
+		}
+	}
+	
+	public void TakeDamage()
+	{
+		if( m_isInvulnerability )
+		{
+			return;
+		}
+		
+		if( m_isGrown )
+		{
+			StartCoroutine( WaitInvulnerabilityTime() );
+			Grow( false );
+			return;
+		}
+		
+		GameOver();
+	}
+	
+	private void GameOver()
 	{
 		// TODO: 'Real' GameOver!
 		Debug.Log("Game Over!");
+	}
+	
+	private IEnumerator WaitInvulnerabilityTime()
+	{
+		m_isInvulnerability = true;
+		yield return new WaitForSeconds( m_invulnerabilityTime );
+		m_isInvulnerability = false;
 	}
 	
 	private void Awake()
@@ -39,6 +96,7 @@ public class Player : MonoBehaviour
 		
 		transform = GetComponent<Transform>();
 		rigidbody2D = GetComponent<Rigidbody2D>();
+		collider2D = GetComponent<Collider2D>();
 	}
 	
 	private void Update()
@@ -55,7 +113,7 @@ public class Player : MonoBehaviour
 			rigidbody2D.AddForce( Vector2.up * m_jumpPower, ForceMode2D.Impulse );
 		}
 		
-		if( !CameraController.CameraBounds.Contains( transform.position ) )
+		if( !CameraController.CameraBounds.Intersects( collider2D.bounds ) )
 		{
 			GameOver();
 		}

@@ -14,7 +14,7 @@ public class EnemyBase : MonoBehaviour
 	
 	protected virtual bool OnPlayerHit(Collision2D collision)
 	{
-		Player.CurrentPlayer.GameOver();
+		Player.CurrentPlayer.TakeDamage();
 		return true;
 	}
 	
@@ -28,7 +28,7 @@ public class EnemyBase : MonoBehaviour
 		return false;
 	}
 	
-	protected void Awake()
+	protected virtual void Awake()
 	{
 		transform = GetComponent<Transform>();
 		rigidbody2D = GetComponent<Rigidbody2D>();
