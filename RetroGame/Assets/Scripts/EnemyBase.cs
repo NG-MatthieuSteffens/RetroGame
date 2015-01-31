@@ -34,6 +34,11 @@ public class EnemyBase : MonoBehaviour
 		rigidbody2D = GetComponent<Rigidbody2D>();
 	}
 	
+	protected virtual void Start()
+	{
+	
+	}
+	
 	protected virtual void OnCollisionEnter2D(Collision2D collision)
 	{
 		HandlePlayerCollision(collision);

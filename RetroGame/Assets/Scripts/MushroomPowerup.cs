@@ -1,19 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MushroomPowerup : Enemy 
+public class MushroomPowerup : PowerupBase 
 {
-	private void Start()
+	public override void OnActivate (Player player)
 	{
-		// Mushroom powerup always goes to right first.
-		m_movementDirection = Enemy.MovementDirection.Right;
+		player.Grow( true );
 	}
 	
-	protected override bool OnPlayerHit (Collision2D collision)
+	public override void OnDeActivate (Player player)
 	{
-		Player.CurrentPlayer.Grow( true );
-		Die();
-		
-		return true;
+		player.Grow( false );
 	}
 }

@@ -12,6 +12,8 @@ public class PipeEnemy : EnemyBase
 	protected float m_lerpSpeed;
 	protected float m_lerpTime;
 	
+	[SerializeField]
+	protected float m_lerpOffset = 0.5f;
 	private bool m_isLerpIncreasing;
 	
 	/// <summary>
@@ -49,7 +51,7 @@ public class PipeEnemy : EnemyBase
 			m_lerpTime -= Time.fixedDeltaTime * m_lerpSpeed;
 		}
 		
-		if( m_lerpTime > 1 || m_lerpTime < 0 )
+		if( m_lerpTime - m_lerpOffset > 1 || m_lerpTime + m_lerpOffset < 0 )
 		{
 			m_isLerpIncreasing = !m_isLerpIncreasing;
 		} 

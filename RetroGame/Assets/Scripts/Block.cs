@@ -10,29 +10,25 @@ public class Block : MonoBehaviour
 	[SerializeField]
 	private GameObject m_blockItem;
 
-	private void OnHit()
-	{
-		m_isHitted = true;
-		renderer.sharedMaterial = m_hitted;
-		
-		if( m_blockItem )
-		{
-			GameObject.Instantiate( m_blockItem, transform.position + Vector3.one, Quaternion.identity );
-		}
-	}
-
-	private void OnCollisionEnter2D(Collision2D collision)
+	public void OnHit()
 	{
 		if( m_isHitted )
 		{ 
 			return;
 		}
-	
-		Vector2 velocity = collision.relativeVelocity;
 		
-		if( collision.transform.CompareTag("Player") && velocity.x == 0 && velocity.y < 0)
+	
+		m_isHitted = true;
+		
+		if( m_blockItem )
 		{
-			OnHit();
+			renderer.sharedMaterial = m_hitted;
+			GameObject.Instantiate( m_blockItem, transform.position + Vector3.one, Quaternion.identity );
+		}
+		else
+		{
+			// If blocks doesn't have item, block will be destroyed instead.
+			Destroy(gameObject);
 		}
 	}
 }

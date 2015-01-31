@@ -21,12 +21,15 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	private Vector3 m_shinkSize = new Vector3( 1, 1, 1);
 	
-	private bool m_isGrown;
 	private bool m_isGrounded;
 	
 	[SerializeField]
 	private float m_invulnerabilityTime = 1f;
 	private bool m_isInvulnerability;
+	
+	// Powerup
+	private bool m_hasPowerUp;
+	private PowerupBase.PowerUpDelegate m_onActivate, m_onDeActivate, m_doPowerUp;
 	
 	/// <summary>
 	/// Cached Transform.
@@ -43,11 +46,35 @@ public class Player : MonoBehaviour
 	/// </summary>
 	private new Collider2D collider2D;
 	
+	public void SetPowerUp(PowerupBase power)
+	{
+		if( m_onDeActivate != null )
+		{
+			m_onDeActivate(this);
+		}
+		
+		if( power )
+		{
+			m_hasPowerUp = true;
+			m_onActivate = power.OnActivate;
+			m_onDeActivate = power.OnDeActivate;
+			m_doPowerUp = power.DoPowerUp;
+		}
+		else
+		{
+			m_hasPowerUp = false;
+			m_onActivate = m_onDeActivate = m_doPowerUp = null;
+		}
+		
+		if( m_onActivate != null )
+		{
+			m_onActivate(this);
+		}
+	}
+	
 	public void Grow(bool isGrown = true)
 	{ 
-		m_isGrown = isGrown;
-		
-		if( m_isGrown )
+		if( isGrown )
 		{
 			transform.localScale = m_grownSize;
 		}
@@ -67,10 +94,10 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if( m_isGrown )
+		if( m_hasPowerUp )
 		{
 			StartCoroutine( WaitInvulnerabilityTime() );
-			Grow( false );
+			SetPowerUp( null );
 			return;
 		}
 		
@@ -107,7 +134,7 @@ public class Player : MonoBehaviour
 	
 	private void FixedUpdate()
 	{ 
-		if( m_isGrounded && Input.GetAxis("Vertical") > 0 )
+		if( m_isGrounded && Input.GetAxis("Action1") > 0 )
 		{
 			rigidbody2D.velocity = Vector2.zero;
 			rigidbody2D.AddForce( Vector2.up * m_jumpPower, ForceMode2D.Impulse );
@@ -116,6 +143,25 @@ public class Player : MonoBehaviour
 		if( !CameraController.CameraBounds.Intersects( collider2D.bounds ) )
 		{
 			GameOver();
+		}
+	}
+	
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		Vector2 relativeVelocity = collision.relativeVelocity;
+		
+		if( collision.transform.CompareTag("Block") && relativeVelocity.x == 0 && relativeVelocity.y > 0)
+		{
+			Block block = collision.transform.GetComponent<Block>();
+			
+			if( block )
+			{
+				block.OnHit(); 
+			}
+			else
+			{
+				GameObject.Destroy(collision.gameObject);
+			}
 		}
 	}
 
