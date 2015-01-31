@@ -12,4 +12,5 @@ public class MushroomPowerup : PowerupBase
 	{
 		player.Grow( false );
 	}
+	
 }

@@ -20,7 +20,7 @@ public class Enemy : EnemyBase
 		int direction = (int)m_movementDirection;
 		transform.Translate( Vector3.right * m_movementSpeed * direction * Time.deltaTime );
 		
-		if( transform.position.y < CameraController.CameraBounds.min.y )
+		if( transform.position.y < GameManager.cameraBounds.min.y )
 		{
 			Die();
 		}

@@ -3,15 +3,6 @@ using System.Collections;
 
 public class CameraController : MonoBehaviour 
 {
-	private static Bounds cameraBounds;
-	public static Bounds CameraBounds
-	{
-		get
-		{
-			return cameraBounds;
-		}
-	}
-	
 	private enum CameraMovementMode
 	{
 		/// <summary>
@@ -57,7 +48,7 @@ public class CameraController : MonoBehaviour
 		// Sets bounds size to match camera size.
 		Vector3 boundsSize = camera.ViewportToWorldPoint( Vector3.one * 1.5f );
 		boundsSize.z = 5;
-		cameraBounds = new Bounds( BoundsCenter, boundsSize );
+		GameManager.cameraBounds = new Bounds( BoundsCenter, boundsSize );
 	}
 	
 	private void Update()
@@ -75,6 +66,6 @@ public class CameraController : MonoBehaviour
 	
 	private void FixedUpdate()
 	{
-		cameraBounds.center = BoundsCenter;
+		GameManager.cameraBounds.center = BoundsCenter;
 	}
 }

@@ -14,7 +14,7 @@ public class EnemyBase : MonoBehaviour
 	
 	protected virtual bool OnPlayerHit(Collision2D collision)
 	{
-		Player.CurrentPlayer.TakeDamage();
+		GameManager.currentPlayer.TakeDamage();
 		return true;
 	}
 	

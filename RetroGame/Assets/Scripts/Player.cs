@@ -3,11 +3,8 @@ using System.Collections;
 
 public class Player : MonoBehaviour 
 {
-	public static Player CurrentPlayer
-	{
-		get;
-		private set;
-	}
+	[SerializeField]
+	private LayerMask m_enemyLayer;
 	
 	[SerializeField]
 	private float m_movementSpeed;
@@ -26,49 +23,55 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	private float m_invulnerabilityTime = 1f;
 	private bool m_isInvulnerability;
-	
-	// Powerup
-	private bool m_hasPowerUp;
-	private PowerupBase.PowerUpDelegate m_onActivate, m_onDeActivate, m_doPowerUp;
+
+	[SerializeField]
+	private PowerupBase m_currentPowerup;
 	
 	/// <summary>
 	/// Cached Transform.
 	/// </summary>
-	private new Transform transform;
+	public new Transform transform;
 
 	/// <summary>
 	/// Cached Rigidbody.
 	/// </summary>
-	private new Rigidbody2D rigidbody2D;
+	public new Rigidbody2D rigidbody2D;
 	
 	/// <summary>
 	/// Cached Collider.
 	/// </summary>
-	private new Collider2D collider2D;
+	public new Collider2D collider2D;
 	
-	public void SetPowerUp(PowerupBase power)
+	public int PlayerDirection
 	{
-		if( m_onDeActivate != null )
-		{
-			m_onDeActivate(this);
-		}
+		get;
+		private set;
+	}
+	
+	public void SetPowerUp(PowerupBase power, System.Type type = null)
+	{
+		PowerupBase oldPowerup = m_currentPowerup;
 		
-		if( power )
+		if( type != null )
 		{
-			m_hasPowerUp = true;
-			m_onActivate = power.OnActivate;
-			m_onDeActivate = power.OnDeActivate;
-			m_doPowerUp = power.DoPowerUp;
+			// Script call. (Like Fireflower when it's deactive.
+			m_currentPowerup = PowerupBase.AddPowerUp( type, this );
 		}
 		else
 		{
-			m_hasPowerUp = false;
-			m_onActivate = m_onDeActivate = m_doPowerUp = null;
+			// Power up object calls.
+			m_currentPowerup = power ? power.SetToPlayer( this ) : null;
 		}
 		
-		if( m_onActivate != null )
+		if( oldPowerup )
 		{
-			m_onActivate(this);
+			oldPowerup.OnDeActivate( this );
+			Destroy( oldPowerup );
+		}
+		
+		if( m_currentPowerup)
+		{
+			m_currentPowerup.OnActivate( this );
 		}
 	}
 	
@@ -94,9 +97,9 @@ public class Player : MonoBehaviour
 			return;
 		}
 		
-		if( m_hasPowerUp )
+		if( m_currentPowerup )
 		{
-			StartCoroutine( WaitInvulnerabilityTime() );
+			StartCoroutine( WaitInvulnerabilityTime(m_invulnerabilityTime) );
 			SetPowerUp( null );
 			return;
 		}
@@ -110,16 +113,16 @@ public class Player : MonoBehaviour
 		Debug.Log("Game Over!");
 	}
 	
-	private IEnumerator WaitInvulnerabilityTime()
+	public IEnumerator WaitInvulnerabilityTime(float time)
 	{
 		m_isInvulnerability = true;
-		yield return new WaitForSeconds( m_invulnerabilityTime );
+		yield return new WaitForSeconds( time );
 		m_isInvulnerability = false;
 	}
 	
 	private void Awake()
 	{
-		CurrentPlayer = this;
+		GameManager.currentPlayer = this;
 		
 		transform = GetComponent<Transform>();
 		rigidbody2D = GetComponent<Rigidbody2D>();
@@ -130,6 +133,20 @@ public class Player : MonoBehaviour
 	{
 		float horizontalAxis = Input.GetAxis("Horizontal");
 		transform.Translate( Vector3.right * horizontalAxis * m_movementSpeed * Time.deltaTime );
+		
+		if( horizontalAxis > 0 )
+		{
+			PlayerDirection = 1;
+		}
+		else if( horizontalAxis < 0 )
+		{
+			PlayerDirection = -1;
+		}
+		
+		if( m_currentPowerup && Input.GetButtonDown("Action2") )
+		{
+			m_currentPowerup.DoPowerUp( this );
+		}
 	}
 	
 	private void FixedUpdate()
@@ -140,7 +157,7 @@ public class Player : MonoBehaviour
 			rigidbody2D.AddForce( Vector2.up * m_jumpPower, ForceMode2D.Impulse );
 		}
 		
-		if( !CameraController.CameraBounds.Intersects( collider2D.bounds ) )
+		if( !GameManager.cameraBounds.Intersects( collider2D.bounds ) )
 		{
 			GameOver();
 		}
@@ -148,11 +165,24 @@ public class Player : MonoBehaviour
 	
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		Vector2 relativeVelocity = collision.relativeVelocity;
+		Vector2 normal = collision.contacts[0].normal;
 		
-		if( collision.transform.CompareTag("Block") && relativeVelocity.x == 0 && relativeVelocity.y > 0)
+		if( collision.transform.CompareTag("Block") && normal.y < 0 && normal.x == 0)
 		{
 			Block block = collision.transform.GetComponent<Block>();
+			
+			// If enemy is over block and block got hitted, kill enemy.
+			RaycastHit2D hit = Physics2D.Raycast( collision.transform.position + Vector3.up, Vector2.up, 1, m_enemyLayer);
+			
+			if( hit )
+			{
+				EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
+				
+				if( enemy )
+				{
+					enemy.Die();
+				}
+			}
 			
 			if( block )
 			{

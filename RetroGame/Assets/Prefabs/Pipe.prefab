@@ -45,8 +45,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 115576}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.2000008, y: -2.04999995, z: 0}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalPosition: {x: 16.2000008, y: -3.9000001, z: 0}
+  m_LocalScale: {x: 1.89999998, y: 2, z: 1}
   m_Children:
   - {fileID: 415578}
   m_Father: {fileID: 0}
@@ -59,7 +59,7 @@ Transform:
   m_GameObject: {fileID: 115578}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: .600000024, y: .900000036, z: .600000024}
+  m_LocalScale: {x: .480000019, y: .900000036, z: .600000024}
   m_Children: []
   m_Father: {fileID: 415576}
   m_RootOrder: 0
@@ -75,7 +75,7 @@ Renderer:
   m_LightmapIndex: 255
   m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
   m_Materials:
-  - {fileID: 2100000, guid: 51c263b3f6b75f04fbd235abec5a304c, type: 2}
+  - {fileID: 2100000, guid: 674aa57c6c418144cb241b1f0f9824db, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 0
@@ -109,7 +109,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 115576}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &3315578
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -128,7 +128,7 @@ Rigidbody2D:
   m_AngularDrag: .0500000007
   m_GravityScale: 0
   m_FixedAngle: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -167,8 +167,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_pipeCollider: {fileID: 6115576}
   m_lerpSpeed: 1
+  m_lerpOffset: 1
   m_fromPosition: {x: 0, y: 0, z: 0}
-  m_toPosition: {x: 0, y: .75, z: 0}
+  m_toPosition: {x: 0, y: 1.25, z: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

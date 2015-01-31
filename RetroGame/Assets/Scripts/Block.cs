@@ -17,7 +17,6 @@ public class Block : MonoBehaviour
 			return;
 		}
 		
-	
 		m_isHitted = true;
 		
 		if( m_blockItem )

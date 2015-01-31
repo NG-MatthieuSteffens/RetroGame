@@ -28,7 +28,7 @@ public class PipeEnemy : EnemyBase
 	[SerializeField]
 	protected Vector3 m_toPosition;
 
-	protected void Start()
+	protected override void Start ()
 	{
 		Physics2D.IgnoreCollision( collider2D, m_pipeCollider, true );
 		m_isLerpIncreasing = true;	
