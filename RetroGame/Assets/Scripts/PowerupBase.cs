@@ -41,7 +41,7 @@ public abstract class PowerupBase : Enemy
 
 	protected virtual void Clone(PowerupBase clone)
 	{
-	
+		m_score = clone.m_score;
 	}
 
 	protected override void Start()
@@ -64,7 +64,10 @@ public abstract class PowerupBase : Enemy
 	
 	protected override bool OnPlayerHit (Collision2D collision)
 	{
-		GameManager.currentPlayer.SetPowerUp( this );
+		if( GameManager.currentPlayer.CurrentPowerup == null || GameManager.currentPlayer.CurrentPowerup.GetType() != this.GetType() )
+		{
+			GameManager.currentPlayer.SetPowerUp( this );
+		}
 		Die();
 		
 		return true;

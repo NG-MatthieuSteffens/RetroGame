@@ -17,6 +17,11 @@ public class Enemy : EnemyBase
 	
 	protected virtual void FixedUpdate()
 	{
+		if( !GameManager.cameraBounds.Contains( transform.position ) && !GameManager.cameraBounds.Contains( transform.position - Vector3.right * GameManager.cameraBounds.extents.x ))
+		{
+			return;
+		}
+		
 		int direction = (int)m_movementDirection;
 		transform.Translate( Vector3.right * m_movementSpeed * direction * Time.deltaTime );
 		
@@ -40,7 +45,7 @@ public class Enemy : EnemyBase
 	
 	protected override void OnCollisionEnter2D(Collision2D collision)
 	{
-		Vector2 collisionDirection = collision.contacts[0].point - (Vector2)transform.position;	
+		Vector2 collisionDirection = collision.contacts[0].normal;
 
 		// Ignore other collisions if player dies.
 		if( HandlePlayerCollision(collision) )
@@ -48,16 +53,16 @@ public class Enemy : EnemyBase
 			return;
 		}
 
-		if( collision.relativeVelocity.y < 0 || collisionDirection.y > 0.5f )
+		if( collisionDirection.y != 0 )
 		{
 			return;
 		}
 		
-		if( m_movementDirection.Equals( MovementDirection.Right ) && collisionDirection.x > 0 )
+		if( m_movementDirection.Equals( MovementDirection.Right ) && collisionDirection.x < 0 )
 		{
 			m_movementDirection = MovementDirection.Left;
 		}
-		else if( m_movementDirection.Equals( MovementDirection.Left ) && collisionDirection.x < 0 )
+		else if( m_movementDirection.Equals( MovementDirection.Left ) && collisionDirection.x > 0 )
 		{
 			m_movementDirection = MovementDirection.Right;
 		}

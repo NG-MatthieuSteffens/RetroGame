@@ -42,10 +42,23 @@ public class Player : MonoBehaviour
 	/// </summary>
 	public new Collider2D collider2D;
 	
+	/// <summary>
+	/// Cached Renderer.
+	/// </summary>
+	public new Renderer renderer;
+	
 	public int PlayerDirection
 	{
 		get;
 		private set;
+	}
+	
+	public PowerupBase CurrentPowerup
+	{
+		get
+		{
+			return m_currentPowerup;
+		}
 	}
 	
 	public void SetPowerUp(PowerupBase power, System.Type type = null)
@@ -84,9 +97,6 @@ public class Player : MonoBehaviour
 		else
 		{
 			transform.localScale = m_shinkSize;
-			
-			// Moves player down so it won't be over any enemies.
-			transform.Translate( 0, -m_grownSize.y / 2, 0 );
 		}
 	}
 	
@@ -107,10 +117,10 @@ public class Player : MonoBehaviour
 		GameOver();
 	}
 	
-	private void GameOver()
+	public void GameOver()
 	{
-		// TODO: 'Real' GameOver!
-		Debug.Log("Game Over!");
+		GameManager.IsGameOver = true;
+		gameObject.SetActive( false );
 	}
 	
 	public IEnumerator WaitInvulnerabilityTime(float time)
@@ -126,11 +136,17 @@ public class Player : MonoBehaviour
 		
 		transform = GetComponent<Transform>();
 		rigidbody2D = GetComponent<Rigidbody2D>();
-		collider2D = GetComponent<Collider2D>();
+		collider2D = GetComponent<Collider2D>(); 
+		renderer = GetComponent<Renderer>();
 	}
 	
 	private void Update()
 	{
+		if( GameManager.IsWorldEnded )
+		{
+			return;
+		}
+	
 		float horizontalAxis = Input.GetAxis("Horizontal");
 		transform.Translate( Vector3.right * horizontalAxis * m_movementSpeed * Time.deltaTime );
 		
@@ -151,14 +167,27 @@ public class Player : MonoBehaviour
 	
 	private void FixedUpdate()
 	{ 
+		if( GameManager.IsWorldEnded )
+		{
+			return;
+		}
+	
 		if( m_isGrounded && Input.GetAxis("Action1") > 0 )
 		{
 			rigidbody2D.velocity = Vector2.zero;
 			rigidbody2D.AddForce( Vector2.up * m_jumpPower, ForceMode2D.Impulse );
 		}
 		
-		if( !GameManager.cameraBounds.Intersects( collider2D.bounds ) )
+		if( !GameManager.cameraBounds.Intersects( collider2D.bounds ))
 		{
+			Vector2 position = transform.position;
+			
+			// Ignore Camera Bounds if
+			if( GameManager.cameraBounds.max.x > position.x && GameManager.cameraBounds.min.x < position.x && GameManager.cameraBounds.min.y < position.y )
+			{
+				return;
+			}
+			
 			GameOver();
 		}
 	}
@@ -169,7 +198,7 @@ public class Player : MonoBehaviour
 		
 		if( collision.transform.CompareTag("Block") && normal.y < 0 && normal.x == 0)
 		{
-			Block block = collision.transform.GetComponent<Block>();
+			ItemBlock block = collision.transform.GetComponent<ItemBlock>();
 			
 			// If enemy is over block and block got hitted, kill enemy.
 			RaycastHit2D hit = Physics2D.Raycast( collision.transform.position + Vector3.up, Vector2.up, 1, m_enemyLayer);
@@ -197,7 +226,7 @@ public class Player : MonoBehaviour
 
 	private void OnCollisionStay2D(Collision2D collision)
 	{
-		if( collision.contacts[0].point.y < transform.position.y ) 
+		if( collision.contacts[0].normal.y > 0 ) 
 		{
 			m_isGrounded = true;
 		}

@@ -9,7 +9,6 @@ public class FireballProjectile : MonoBehaviour
 	private int m_totalBounces;
 
 	private Vector2 m_velocity;
-	private float m_time;
 	
 	private new Transform transform;
 	private new Rigidbody2D rigidbody2D;
@@ -28,9 +27,7 @@ public class FireballProjectile : MonoBehaviour
 	 
 	private void FixedUpdate()
 	{	
-		float bounce = Mathf.Abs( Mathf.Sin( m_time) ) * 0.5f + 1.0f; 
-		transform.Translate( m_velocity.x * Time.fixedDeltaTime, m_velocity.y * bounce * Time.fixedDeltaTime, 0 , Space.Self );
-		m_time += Time.fixedDeltaTime;
+		transform.Translate( m_velocity.x * Time.fixedDeltaTime,0, 0 , Space.Self );
 		
 		// For sure...
 		if( transform.position.y < -20 )
@@ -57,6 +54,8 @@ public class FireballProjectile : MonoBehaviour
 			Destroy(gameObject);
 			return;
 		}
+		
+		rigidbody2D.AddForce( Vector2.up * m_velocity.y, ForceMode2D.Impulse );
 
 	}
 }

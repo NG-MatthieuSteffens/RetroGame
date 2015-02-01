@@ -4,6 +4,10 @@ using System.Collections;
 public class FireFlowerPowerup : MushroomPowerup 
 {
 	[SerializeField]
+	protected Color m_effectColor = Color.magenta;
+	protected Color m_oldColor;
+	
+	[SerializeField]
 	protected GameObject m_projectile;
 	
 	[SerializeField]
@@ -14,11 +18,14 @@ public class FireFlowerPowerup : MushroomPowerup
 	
 	public override void OnActivate (Player player)
 	{
+		m_oldColor = player.renderer.material.color;
+		player.renderer.material.color = m_effectColor;
 		base.OnActivate (player);
 	}
 	
 	public override void OnDeActivate (Player player)
 	{
+		player.renderer.material.color = m_oldColor;
 		base.OnDeActivate (player);
 		player.SetPowerUp( null, typeof( MushroomPowerup ) );
 	}
@@ -31,7 +38,10 @@ public class FireFlowerPowerup : MushroomPowerup
 	
 	protected override void Clone (PowerupBase clone)
 	{
+		base.Clone( clone );
+		
 		FireFlowerPowerup newClone = clone as FireFlowerPowerup;
+		m_effectColor = newClone.m_effectColor;
 		m_projectile = newClone.m_projectile;
 		m_velocity = newClone.m_velocity;
 		m_offset = newClone.m_offset;

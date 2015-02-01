@@ -3,11 +3,16 @@ using System.Collections;
 
 public class EnemyBase : MonoBehaviour 
 {
+	[SerializeField]
+	protected int m_score = 300;
+	
 	protected new Transform transform;
 	protected new Rigidbody2D rigidbody2D;
 	
 	public bool Die()
 	{
+		GameManager.AddScore( m_score );
+		
 		Destroy( gameObject );
 		return false;
 	}
